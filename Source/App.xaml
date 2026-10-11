@@ -1,0 +1,152 @@
+<Application x:Class="SeniorWhatsApp.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:SeniorWhatsApp">
+    <Application.Resources>
+        <local:ScaleConverter x:Key="Scale"/>
+        <FontFamily x:Key="IconFont">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
+
+        <!-- Duży pasek przewijania, łatwy do trafienia myszą -->
+        <Style TargetType="ScrollBar">
+            <Style.Triggers>
+                <Trigger Property="Orientation" Value="Vertical">
+                    <Setter Property="Width" Value="34"/>
+                    <Setter Property="MinWidth" Value="34"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Prostokątny kafelek kontaktu: obraz po lewej, nazwa po prawej -->
+        <DataTemplate x:Key="ContactTile" DataType="{x:Type local:Contact}">
+            <Border x:Name="Tile"
+                    Width="{Binding DataContext.TileWidth, RelativeSource={RelativeSource AncestorType=Window}}"
+                    Height="{Binding DataContext.TileHeight, RelativeSource={RelativeSource AncestorType=Window}}"
+                    Margin="0,0,0,14" Padding="10" CornerRadius="22"
+                    Background="White" BorderBrush="#40FFFFFF" BorderThickness="6"
+                    SnapsToDevicePixels="True">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}"
+                            CornerRadius="14" Background="#4C7FB0">
+                        <Grid>
+                            <Border CornerRadius="14">
+                                <Border.Background>
+                                    <ImageBrush ImageSource="{Binding Image}" Viewbox="{Binding Crop}" Stretch="UniformToFill"/>
+                                </Border.Background>
+                            </Border>
+                            <TextBlock x:Name="InitialText" Text="{Binding Initial}" Visibility="Collapsed"
+                                       Foreground="White" FontWeight="Bold"
+                                       FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Border}, Converter={StaticResource Scale}, ConverterParameter=0.5}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                    <TextBlock Grid.Column="1" Text="{Binding Name}"
+                               FontSize="{Binding DataContext.NameFontSize, RelativeSource={RelativeSource AncestorType=Window}}"
+                               FontWeight="Bold" Foreground="#14213D"
+                               VerticalAlignment="Center" TextWrapping="Wrap"
+                               TextTrimming="CharacterEllipsis" Margin="22,0,8,0"/>
+                </Grid>
+            </Border>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding Image}" Value="{x:Null}">
+                    <Setter TargetName="InitialText" Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
+                    <Setter TargetName="Tile" Property="BorderBrush" Value="#7FB8E6"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
+                    <Setter TargetName="Tile" Property="BorderBrush" Value="#FFC857"/>
+                    <Setter TargetName="Tile" Property="Background" Value="#FFF4D6"/>
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+
+        <Style x:Key="TileItemStyle" TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="AutomationProperties.Name" Value="{Binding Name}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <ContentPresenter/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Duży zaokrąglony przycisk (zielony przycisk rozmowy, ustawienia) -->
+        <Style x:Key="BigButton" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="36"
+                                BorderBrush="#FFC857" BorderThickness="0" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="BorderThickness" Value="8"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Bd" Property="BorderThickness" Value="8"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Kwadratowy przycisk z lekko zaokrąglonymi rogami (czerwony X wyłączający program) -->
+        <Style x:Key="SquareButton" TargetType="Button" BasedOn="{StaticResource BigButton}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="10"
+                                BorderBrush="#FFC857" BorderThickness="0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="BorderThickness" Value="4"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Okrągły przycisk (czerwona słuchawka) -->
+        <Style x:Key="RoundButton" TargetType="Button" BasedOn="{StaticResource BigButton}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Ellipse x:Name="Ring" Fill="{TemplateBinding Background}" Stroke="White" StrokeThickness="0"/>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Ring" Property="StrokeThickness" Value="8"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Ring" Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Application.Resources>
+</Application>

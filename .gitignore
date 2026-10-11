@@ -1,0 +1,14 @@
+bin/
+obj/
+_probe/
+# dane użytkownika zapisywane obok programu
+settings.json
+settings.json.tmp
+settings.json.bad
+log.txt
+images/
+# pliki aktualizacji
+*.new
+*.old
+SeniorWhatsApp.exe
+*.zip
